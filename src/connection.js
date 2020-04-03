@@ -8,7 +8,7 @@ var _connection = new Promise((resolve, reject) => {
         port: 2424
     })
         .then(client => {
-            client.sessions({ name: "archetype", username: "root", password: "root" })
+            client.sessions({ name: "", username: "root", password: "root" })
             .then(pool => {
                 // redefine connection function for later callz
                 pool.acquire().then(session => {
