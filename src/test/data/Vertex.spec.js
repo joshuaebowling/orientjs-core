@@ -1,5 +1,5 @@
-import should from "should"
-import connection from  "../connection"
+import should from 'should'
+import vertex from  "../data/Vertex"
 
 describe('connection tests', function() {
     

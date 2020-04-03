@@ -2,25 +2,26 @@ import orientjs from "orientjs";
 
 const client = orientjs.OrientDBClient;
 
-var _connection = new Promise((resolve, reject) => {
-    return client.connect({
-        host: "localhost",
-        port: 2424
-    })
-        .then(client => {
-            client.sessions({ name: "", username: "root", password: "root" })
-            .then(pool => {
-                // redefine connection function for later callz
-                pool.acquire().then(session => {
-                    var result = { session: session, close: pool.close };
-                    _connection = new Promise(resolve => resolve(result));
-                    resolve(result);
-                });
-            })
+var _connection = ({address, port, user, pass, db}) => 
+    new Promise((resolve, reject) => {
+        return client.connect({
+            host: address,
+            port: port
         })
-        .catch(e => reject(e))
-    ;
-});
+            .then(client => {
+                client.sessions({ name: db, username: user, password: pass })
+                .then(pool => {
+                    // redefine connection function for later callz
+                    pool.acquire().then(session => {
+                        var result = { session: session, close: pool.close };
+                        _connection = new Promise(resolve => resolve(result));
+                        resolve(result);
+                    });
+                })
+            })
+            .catch(e => reject(e))
+        ;
+    });
 
 function queryGenerator(cmd, parameters, callback) {
     return new Promise((resolve, reject) => {
@@ -44,7 +45,7 @@ function queryGenerator(cmd, parameters, callback) {
 
 
 export default { 
-    connect: () => _connection,
+    connect: ({address, port, user, pass, db}) => _connection({address, port, user, pass, db}),
     query: queryGenerator
 }
   

@@ -1,0 +1,15 @@
+{
+    "Customer": {
+      "dbConfig": {
+        "host": "localhost",
+        "port": 2424,
+        "dbName": "dbname",
+        "user":"user",
+        "pass":"pass"
+      },
+      "credit": {
+        "initialLimit": 100,
+        "initialDays": 1
+      }
+    }
+}
