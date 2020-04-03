@@ -1,7 +1,7 @@
 # app specific
 dist
 tsconfig.json
-config/default.json
+config
 
 # Logs
 logs
