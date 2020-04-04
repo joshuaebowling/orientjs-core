@@ -3,7 +3,7 @@ import orientjs from "orientjs";
 const client = orientjs.OrientDBClient;
 
 var _connection = ({address, port, user, pass, db}) => 
-    new Promise((resolve, reject) => {
+    new Promise((resolve, reject) => {        
         return client.connect({
             host: address,
             port: port
@@ -14,7 +14,6 @@ var _connection = ({address, port, user, pass, db}) =>
                     // redefine connection function for later callz
                     pool.acquire().then(session => {
                         var result = { session: session, close: pool.close };
-                        _connection = new Promise(resolve => resolve(result));
                         resolve(result);
                     });
                 })
@@ -23,29 +22,41 @@ var _connection = ({address, port, user, pass, db}) =>
         ;
     });
 
-function queryGenerator(cmd, parameters, callback) {
+const queryGenerator = (connection) => (cmd, parameters, callback = null) => {
+        return new Promise((resolve, reject) => {
+            var query = connection.session.query(cmd, parameters);
+            if(callback === null) {
+                resolve(query.all());
+            } else {
+                query
+                    .on('data', callback)
+                    .on('error', (error) => {
+                        reject(error);
+                    })
+                    .on('end', () => {
+                        resolve(true);
+                    })
+                ;                
+            }
+        });
+
+    };
+
+const queryAllGenerator = (connection) => (cmd, parameters) => {
+        return new Promise((resolve, reject) => {
+            resolve(connection.session.query(cmd, parameters));
+        });
+    };
+
+
+export default ({address, port, user, pass, db}) => { 
+    const connection = _connection({address, port, user, pass, db});
     return new Promise((resolve, reject) => {
-        _connection.then(query => { 
-            var query = session.query(cmd, parameters);
-            query
-                .on('data', callback)
-                .on('error', (error) => {
-                    reject(error);
-                })
-                .on('end', () => {
-                    resolve(true);
-                })
-            ;                
-        })
-        .catch()
-        ;  
+        connection.then(con => {
+            resolve({
+                query: queryGenerator(con)
+            });
+        });
     });
-
-}
-
-
-export default { 
-    connect: ({address, port, user, pass, db}) => _connection({address, port, user, pass, db}),
-    query: queryGenerator
-}
+};
   
