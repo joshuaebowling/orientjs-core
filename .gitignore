@@ -2,6 +2,7 @@
 dist
 tsconfig.json
 config/local.json
+js/
 
 # Logs
 logs

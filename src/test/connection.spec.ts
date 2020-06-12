@@ -1,6 +1,6 @@
 import should from "should"
 import config from "config"
-import connection from  "../connection"
+import connection from  "../data/connection"
 
 const dbConfig = config.get('dbConfig');
 
@@ -21,7 +21,7 @@ describe('connection tests', function() {
     it('connect() should return an object with expected properties and types thereof', (done) => {
         const con = getConn();
         should(con).be.a.Promise();
-        con.then(({query, queryAll}) => {
+        con.then(({query}) => {
             should(query).be.a.Function();
             done();
         });
@@ -47,7 +47,7 @@ describe('connection tests', function() {
         con.then(({query}) => {
             const queryResult = query("SELECT * FROM V", {});
             console.log('qr',queryResult);
-            queryResult.then(results => {
+            queryResult.then((results:any) => {
                 console.log('results', results);
                 should(results).be.a.Array();
                 should(results[0]).be.a.Object();

@@ -1,7 +1,7 @@
 // import should from 'should'
 // import vertex from  "./data/Vertex"
 
-// describe('connection tests', function() {
+// describe('vertex repo tests', function() {
     
 //     it('should have properties and properties should be right types', () => {
 //         const shouldCon = should(connection);
