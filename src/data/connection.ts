@@ -7,27 +7,14 @@ const client = orientjs.OrientDBClient;
 
 const _getClient = async (connectionParams: Data.Parameters.IConnectionParameters) => {
     const {address, port} = connectionParams;
-    const connectedClient: Data.IClient = await client.connect({host: address, port});
+    var connectedClient: Data.IClient;
+    try {
+        connectedClient = await client.connect({host: address, port});
+    } catch(e) {
+        console.log(e);
+        throw e;
+    }
     return connectedClient;
-    // new Promise((resolve, reject) => {
-    //     return client.connect({
-    //         host: address,
-    //         port: port
-    //     })
-    //         .then(client => {
-    //             client.sessions({ name: db, username: user, password: pass })
-    //                 .then(pool => {
-    //                     // redefine connection function for later callz
-    //                     pool.acquire().then(session => {
-    //                         var result = { session: session, close: pool.close };
-    //                         resolve(result);
-    //                     });
-    //                 })
-    //             ;
-    //         })
-    //         .catch(e => reject(e))
-    //     ;
-    // });
 };
 
 const _mgetClient: (connectionParams: Data.Parameters.IConnectionParameters) => PromiseLike<Data.IClient> = memoizee(_getClient, {async: true});
@@ -38,12 +25,13 @@ const _getSession =  (cliConnection: Data.IClient) => async (sessionParams: Data
     const session: Data.ISession  = await pool.acquire();
     return session;
 }
-const noop = (data:any) => {};
-const queryGenerator = (connection) => async (cmd, parameters, callback = noop) => 
+
+
+const queryGenerator = (session: Data.ISession) => async (cmd: string, parameters?: { params: object }| null, callback?: (data:any) => void | null) => 
 
     new Promise((resolve, reject) => {
-        var query = connection.session.query(cmd, parameters);
-        if(callback === null) {
+        var query = session.query(cmd, parameters, callback);
+        if(!callback) {
             resolve(query.all());
         } else {
             query
@@ -58,10 +46,6 @@ const queryGenerator = (connection) => async (cmd, parameters, callback = noop) 
         }
     });
 
-// const queryAllGenerator = (connection) => (cmd, parameters) =>
-//     new Promise((resolve, reject) => {
-//         resolve(connection.session.query(cmd, parameters));
-//     });
 
 const connection = async (connectionParams: Data.Parameters.IPoolConnectionParameters) => { 
     const {address, port, user, pass, db} = connectionParams;
@@ -69,8 +53,7 @@ const connection = async (connectionParams: Data.Parameters.IPoolConnectionParam
     var session: Data.ISession;
     try {
         client = await _mgetClient({address, port});
-        session = await _getSession(client)({user, pass, db});
-
+        session = await _getSession(client)({username: user, password: pass, name: db});
     } catch(e) {
         console.log(e);
         throw e;
@@ -83,4 +66,3 @@ const connection = async (connectionParams: Data.Parameters.IPoolConnectionParam
 };
 
 export default connection;
-  

@@ -2,7 +2,7 @@ import should from "should"
 import config from "config"
 import connection from  "../data/connection"
 
-const dbConfig = config.get('dbConfig');
+const dbConfig = config.get('db');
 
 describe('connection tests', function() {
     const getConn = () => connection({
@@ -30,7 +30,8 @@ describe('connection tests', function() {
     it('query should return results with callback', (done) => {
         const con = getConn();
         con.then(({query}) => {
-            var queryResult = query("SELECT * FROM V", {}, (data) => {
+            var queryResult = query("SELECT * FROM V", null, (data) => {
+                console.log('data', data);
                 should(data).be.a.Object();
             })
             .then(finish => { 
@@ -45,7 +46,7 @@ describe('connection tests', function() {
     it('query should return all results with all().then', (done) => {
         const con = getConn();
         con.then(({query}) => {
-            const queryResult = query("SELECT * FROM V", {});
+            const queryResult = query("SELECT * FROM V");
             console.log('qr',queryResult);
             queryResult.then((results:any) => {
                 console.log('results', results);

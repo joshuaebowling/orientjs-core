@@ -10,19 +10,21 @@ declare namespace Utils {
 }
 
 declare namespace Data {
+  
   interface IClient {
     sessions: (sessionsParameters: Parameters.ISessionsParameters) => ISessions;
   }
-
   interface ISession {
-    query: (sql: string, options: { params: object }, callback: (data:any) => void) => IQueryResult
+    query: (sql: string, options?: { params: object } | null, callback?: (data:any) => void | null) => IQueryResult
   }
 
   interface ISessions {
     acquire: () => ISession;
   }
+
   interface IQueryResult {
-    on: (event: "data" | "error" | "end", callback: (data: any) => void) => void;
+    on: (event: "data" | "error" | "end", callback: (data: any) => void) => IQueryResult;
+    all: () => Array<object>;
   }
   namespace Parameters {
     interface IPoolConnectionParameters {
@@ -38,9 +40,9 @@ declare namespace Data {
       port: number;
     }
     interface ISessionsParameters {
-      db: string,
-      user: string;
-      pass: string;
+      name: string,
+      username: string;
+      password: string;
     }
   
   }

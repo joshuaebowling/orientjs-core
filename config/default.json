@@ -1,5 +1,5 @@
 {
-    "dbConfig": {
+    "db": {
         "host": "localhost",
         "port": 2424,
         "dbName": "dbname",
